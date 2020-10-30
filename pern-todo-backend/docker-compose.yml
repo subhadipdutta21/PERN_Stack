@@ -1,0 +1,19 @@
+version: '3.3'
+services: 
+    pern-todo-backend:
+      image: pern-todo-backend
+      ports: 
+        - 5000:5000
+      command: bash -c 'while !</dev/tcp/pern-todo-backend_db_1/5432; do sleep 1; done; npm start'
+      depends_on:
+        - db
+      environment:
+        - DATABASE_URL=postgres://postgres:subh1994@pern-todo-backend_db_1:5432/pern
+        - PORT=5000   
+    db:
+      image: postgres      
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=subh1994
+        - POSTGRES_DB=pern
+          
