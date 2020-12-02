@@ -2,7 +2,7 @@ const { ApolloServer } = require('apollo-server')
 
 const typeDefs = require('./GraphQL/typeDefs')
 const resolvers = require('./GraphQL/Resolvers')
-const { likesDataLoader } = require('./GraphQL/Resolvers/queryFunctions')
+const { likesDataLoader, commentsDataLoader } = require('./GraphQL/Resolvers/queryFunctions')
 
 
 const server = new ApolloServer({
@@ -10,7 +10,8 @@ const server = new ApolloServer({
     resolvers,
     context: () => ({
         loaders: {
-            likesLoader: likesDataLoader()
+            likesLoader: likesDataLoader(),
+            commentsLoader: commentsDataLoader()
         }
     })
 })

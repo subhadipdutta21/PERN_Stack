@@ -6,16 +6,6 @@ CREATE TABLE todo
     description VARCHAR(255)
 );
 
-CREATE TABLE users
-(
-    user_id uuid DEFAULT uuid_generate_v4(),
-    name VARCHAR(15),
-    email VARCHAR(20),
-    contact VARCHAR,
-    password VARCHAR,
-    PRIMARY KEY(user_id)
-);
-
 CREATE TABLE restaurants
 (
     id uuid DEFAULT uuid_generate_v4() NOT NULL PRIMARY KEY,
@@ -24,6 +14,19 @@ CREATE TABLE restaurants
     price_range INT NOT NULL CHECK(price_range > 1 and price_range < 5)
 
 )
+
+-- PERN --
+
+CREATE TABLE users
+(
+    user_id uuid DEFAULT uuid_generate_v4(),
+    name VARCHAR(15),
+    email VARCHAR,
+    contact VARCHAR,
+    password VARCHAR,
+    picture VARCHAR,
+    PRIMARY KEY(user_id)
+);
 
 CREATE TABLE posts
 (

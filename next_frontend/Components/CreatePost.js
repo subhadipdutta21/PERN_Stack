@@ -1,0 +1,91 @@
+import { Button, message, Input, Avatar, Modal, Spin, Mentions } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import commonStyles from './styles/commonStyles';
+import Cookies from 'js-cookie'
+import { useState } from 'react';
+
+import { client } from '../apolloGqlClient';
+import { create_post, fetch_mentions } from '../gqlQueries';
+import { debounce } from 'lodash';
+const { Option, getMentions } = Mentions;
+
+
+const { TextArea } = Input;
+
+
+const CreatePost = ({ setReload, reload }) => {
+    const username = Cookies.get('user')
+    const picture = Cookies.get('picture')
+    const dummyDp = <Avatar style={commonStyles.bgGreen} icon={<UserOutlined />} />
+
+    const [postDesc, setPostDesc] = useState('')
+    const [show, setShow] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [suggestions, setSuggestions] = useState([])
+
+    // create post
+    const createPost = async _ => {
+        console.log('cretaing post--', Cookies.get('user_id'), postDesc)
+        if (!postDesc) { message.error('Nothing to Post!'); return }
+        setLoading(true)
+        try {
+            let resp = await client.mutate({
+                mutation: create_post, fetchPolicy: 'no-cache', variables: {
+                    input: {
+                        body: postDesc,
+                        user_id: Cookies.get('user_id')
+                    }
+                }
+            })
+
+            console.log(resp)
+            resp?.data?.createPost?.error ?
+                message.error(resp?.data?.createPost?.message) :
+                (setShow(false), message.success(resp?.data?.createPost?.message), setReload(!reload))
+        }
+        catch (error) { console.log(error); message.error(error) }
+        finally { setLoading(false) }
+    }
+
+
+    const getSuggestions = async val => {
+        let resp = await client.query({ query: fetch_mentions, fetchPolicy: 'no-cache', variables: { input: { searchTerm: val } } })
+        console.log(resp)
+        resp?.data?.mentions?.error ? message.error(resp?.data?.mentions?.message) : setSuggestions(resp?.data?.mentions?.suggestions)
+    }
+
+    const createPostModal = () => (
+        <Modal
+            title="Create Post" okText='Post'
+            visible={show} closable={false}
+            onOk={() => createPost()}
+            onCancel={() => { setShow(false); setPostDesc('') }}
+        >
+            <Spin spinning={loading}>
+                <Mentions
+                    rows="5" placeholder={"Whats on your mind, " + username?.split(' ')?.[0] + " ?"}
+                    value={postDesc} autoFocus={true}
+                    onChange={val => setPostDesc(val)}
+                    onSearch={(val) => getSuggestions(val)}
+                >
+                    {suggestions?.map((itm, idx) => <Option key={idx} value={itm.name}>{itm.picture ? <Avatar src={itm.picture} /> : dummyDp}{" " + itm.name}</Option>)}
+                </Mentions>
+            </Spin>
+        </Modal>
+    )
+
+    return (
+        <>
+            <Input
+                size="large"
+                placeholder={" what's on your mind, " + username?.split(' ')?.[0] + " ?"}
+                prefix={picture ? <Avatar src={picture} /> : dummyDp}
+                style={commonStyles.createPost}
+                onClick={() => setShow(true)} />
+
+            {createPostModal()}
+        </>
+    );
+}
+
+export default CreatePost;

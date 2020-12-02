@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const pool = require('../../db')
 const config = require('config')
+const { OAuth2Client } = require('google-auth-library');
+
 const { likesByIds, likesByPostId } = require('./queryFunctions');
+const client = new OAuth2Client('262293425024-dn8nm8cs5fbgt0qjr40d6cq90rm9ftki.apps.googleusercontent.com')
+
 
 module.exports = {
 
@@ -26,13 +30,48 @@ module.exports = {
             } catch (error) { return { error: true, message: error } }
         },
 
+        oAuth: async (_, args, context, info) => {
+            console.log(args.input)
+            const { token } = args.input
+            // verify token
+            try {
+                const ticket = await client.verifyIdToken({
+                    idToken: token,
+                    audience: "262293425024-dn8nm8cs5fbgt0qjr40d6cq90rm9ftki.apps.googleusercontent.com"
+                })
+                console.log(ticket.getPayload())
+                const user = ticket.getPayload()
+                // check if user exists
+                let useCheckResp = await pool.query('SELECT * FROM users WHERE email=($1)', [user.email])
+                if (useCheckResp.rowCount !== 0) {
+                    //user found      
+                    console.log('user found returning token', useCheckResp.rows[0])
+                    let { name, email, picture, user_id } = useCheckResp.rows[0]
+                    const payload = { id: useCheckResp.rows[0].user_id }
+                    let token = await jwt.sign(payload, config.get('jwtSecret'))
+                    return { message: 'login successful!', error: null, token, name, email, picture, user_id }
+                } else {
+                    // create user    
+                    console.log('creating new user')
+                    const { name, email, picture } = user
+                    let userInsertResp = await pool.query('INSERT INTO users(name,email,picture) VALUES ($1,$2,$3) RETURNING *', [name, email, picture])
+                    const payload = { id: userInsertResp.rows[0].user_id }
+                    let token = await jwt.sign(payload, config.get('jwtSecret'))
+                    return { error: false, message: 'User registered successfully!', token, name, email, picture, user_id: payload.id }
+                }
+            } catch (error) { return { error: true, message: 'Wrong Creds!' } }
+        },
+
 
         fetchPosts: async (parent, args, context, info) => {
+            console.log(args.input)
+            let { offset } = args.input
+            let limit = 5
             try {
                 console.log('called fetch posts')
-                let postResp = await pool.query('SELECT p2.id,p2.body,p2.user_id, u."name" FROM posts p2 INNER JOIN users u ON u.user_id = p2.user_id')
+                let postResp = await pool.query('SELECT p2.id,p2.body,p2.user_id, u."name",u."picture" FROM posts p2 INNER JOIN users u ON u.user_id::uuid = p2.user_id limit $1 offset $2', [limit, offset])
                 return postResp.rows
-            } catch (error) { }
+            } catch (error) { console.log(error) }
         },
 
         fetchCommentsOnPostID: async (_, args, context, info) => {
@@ -48,30 +87,31 @@ module.exports = {
 
                 return commentsResp
             } catch (error) { }
+        },
+
+        mentions: async (parent, args, context, info) => {
+            console.log(args.input)
+            let { searchTerm } = args.input
+            try {
+                let suggestions = await pool.query('SELECT name,picture FROM users WHERE LOWER(name) LIKE $1', [searchTerm.toLowerCase() + "%"])                
+                return { suggestions: suggestions.rows, error: false, message: 'suggestions found' }
+            }
+            catch (error) { return { error: true, message: error } }
         }
+
+
     },
 
     Post: {
         likes: (parent, args, context) => {
             const { loaders } = context
-            const { likesLoader } = loaders
-            return likesLoader.load(parent.id)
+            return loaders.likesLoader.load(parent.id)
         },
 
-        comments: async (parent) => {
-            console.log('called fetch comments', parent.id)
-            let data = await pool.query(
-                'SELECT u2.user_id, u2.name,u2.email,c2."comment" ,c2.is_deleted ,c2.comment_id FROM users u2 INNER JOIN "comments" c2 ON c2.commentator_user_id = u2.user_id WHERE c2.post_id=($1)',
-                [parent.id]
-            )
+        comments: async (parent, args, context) => {
+            const { loaders } = context
+            return loaders.commentsLoader.load(parent.id)
 
-            let commentsResp = []
-            data.rows.map(itm => commentsResp.push({
-                commentator_id: itm.user_id, commentator_name: itm.name,
-                commentator_email: itm.email, comment: itm.comment, isDeleted: !!itm.is_deleted
-            }))
-
-            return commentsResp
         }
     },
 
@@ -123,9 +163,9 @@ module.exports = {
                 // create post
                 try {
                     let upsertPostResp = await pool.query('INSERT INTO posts(body, user_id) VALUES($1,$2) RETURNING * ', [body, user_id])
-                    // console.log(upsertPostResp)
+                    console.log(upsertPostResp)
                     return { message: 'Post creation successful', error: false }
-                } catch (err) { return { message: "", error: false } }
+                } catch (err) { return { message: err, error: false } }
             }
 
         },

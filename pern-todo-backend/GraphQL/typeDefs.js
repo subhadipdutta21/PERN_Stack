@@ -13,19 +13,24 @@ module.exports = gql`
 
     type RegisterResponse {
         message: String
-        error: String
+        error: Boolean
     }
 
     type AuthResponse {
         message: String
-        error: String
+        error: Boolean
         token: String
+        name: String
+        email: String
+        picture: String
+        user_id: String
     }
 
     type Post {        
         id: String!
         body: String!
         user_id: String!  
+        picture: String
         name: String!
         likes: [Like!]!      
         comments:[Comment]
@@ -41,6 +46,7 @@ module.exports = gql`
         commentator_id: String
         commentator_name:String
         commentator_email: String
+        picture: String
         comment: String
         is_deleted: Boolean
     }
@@ -52,12 +58,23 @@ module.exports = gql`
 
     type LikeResponse {
         message: String
-        error: String
+        error: Boolean
     }
 
     type CommentResponse {
         message: String
-        error: String
+        error: Boolean
+    }
+
+    type Suggestions {
+        suggestions: [Suggestion]
+        error: Boolean
+        message: String
+    }
+
+    type Suggestion {
+        name: String!
+        picture: String
     }
 
 
@@ -78,6 +95,8 @@ module.exports = gql`
     input FetchPostInput {
         post_id: String
         user_id: String
+        limit: Int 
+        offset: Int
     }
 
     input CreatePostInput{
@@ -104,6 +123,14 @@ module.exports = gql`
         post_id: String!
     }
 
+    input authToken {
+        token: String!
+    }
+
+    input mentionInput {
+        searchTerm: String!
+    }
+
 
 # queries
 
@@ -111,6 +138,8 @@ module.exports = gql`
         authenticateUser(input: AuthInput!): AuthResponse!
         fetchPosts(input: FetchPostInput): [Post]!
         fetchCommentsOnPostID(input: FetchCommentInput!): [Comment]
+        oAuth(input: authToken!): AuthResponse!
+        mentions(input: mentionInput!): Suggestions
     }
 
 
