@@ -76,7 +76,7 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
                 <Option value="afc163">afc163</Option>
                 <Option value="zombieJ">zombieJ</Option>
                 <Option value="yesmeck">yesmeck</Option>
-            </Mentions>,
+            </Mentions>
             {comment &&
                 <Button size='small' loading={loading2} type="primary" style={{ float: 'right' }} onClick={_ => postComment()}>
                     {loading2 ? 'Posting' : "Post"}
