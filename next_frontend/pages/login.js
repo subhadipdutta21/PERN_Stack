@@ -18,7 +18,7 @@ const tailLayout2 = {
     wrapperCol: { offset: 8, span: 16, },
 };
 
-const Login = () => {
+const Login = () => {    
 
     useEffect(() => {
         Cookies.get('jwt') ? Router.push("/home") : null
@@ -75,7 +75,7 @@ const Login = () => {
 
                         <Form.Item {...tailLayout2} className={styles.oauthBtn}>
                             <GoogleLogin
-                                clientId="262293425024-dn8nm8cs5fbgt0qjr40d6cq90rm9ftki.apps.googleusercontent.com"
+                                clientId={process.env.OAUTH_CLIENT_ID}
                                 buttonText="Login/ Signup using Google" onSuccess={onSuccess}
                                 onFailure={err => console.log(err)} cookiePolicy={'single_host_origin'} theme='dark'
                             />

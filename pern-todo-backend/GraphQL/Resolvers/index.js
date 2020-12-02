@@ -5,7 +5,8 @@ const config = require('config')
 const { OAuth2Client } = require('google-auth-library');
 
 const { likesByIds, likesByPostId } = require('./queryFunctions');
-const client = new OAuth2Client('262293425024-dn8nm8cs5fbgt0qjr40d6cq90rm9ftki.apps.googleusercontent.com')
+const client = new OAuth2Client(process.env.OAUTH2CLIENT)
+require("dotenv").config();
 
 
 module.exports = {
@@ -37,7 +38,7 @@ module.exports = {
             try {
                 const ticket = await client.verifyIdToken({
                     idToken: token,
-                    audience: "262293425024-dn8nm8cs5fbgt0qjr40d6cq90rm9ftki.apps.googleusercontent.com"
+                    audience: process.env.OAUTH2CLIENT
                 })
                 console.log(ticket.getPayload())
                 const user = ticket.getPayload()
