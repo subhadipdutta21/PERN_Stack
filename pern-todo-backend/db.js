@@ -34,8 +34,4 @@ const pool = new Client({
 });
 
 
-pool.connect()
-
-
-
 module.exports = pool
