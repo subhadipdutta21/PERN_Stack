@@ -2,7 +2,7 @@ import { Button, message, Input, Avatar, Modal, Spin, Mentions } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import commonStyles from './styles/commonStyles';
 import Cookies from 'js-cookie'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { client } from '../apolloGqlClient';
 import { create_post, fetch_mentions } from '../gqlQueries';
@@ -14,14 +14,21 @@ const { TextArea } = Input;
 
 
 const CreatePost = ({ setReload, reload }) => {
-    const username = Cookies.get('user')
-    const picture = Cookies.get('picture')
+    const [username, setusername] = useState('');
+    const [picture, setpicture] = useState('');
+    
     const dummyDp = <Avatar style={commonStyles.bgGreen} icon={<UserOutlined />} />
 
     const [postDesc, setPostDesc] = useState('')
     const [show, setShow] = useState(false)
     const [loading, setLoading] = useState(false)
     const [suggestions, setSuggestions] = useState([])
+
+    useEffect(async () => {
+        const username = await Cookies.get('user');
+        const picture = await Cookies.get('picture')
+        setusername(username); setpicture(picture);
+    }, []);
 
     // create post
     const createPost = async _ => {
