@@ -21,8 +21,7 @@ module.exports = {
                     if (bcrypt.compareSync(password, useCheckResp.rows[0].password)) {
                         // passwords matched ,generate JWT
                         const payload = { id: useCheckResp.rows[0].user_id }
-                        let token = await jwt.sign(payload, config.get('jwtSecret'))
-                        console.log(token)
+                        let token = await jwt.sign(payload, config.get('jwtSecret'))                        
                         return { message: 'login successful', error: null, token }
                     } else return { error: true, message: 'wrong password!' }
 
@@ -31,16 +30,14 @@ module.exports = {
             } catch (error) { return { error: true, message: error } }
         },
 
-        oAuth: async (_, args, context, info) => {
-            console.log(args.input)
+        oAuth: async (_, args, context, info) => {            
             const { token } = args.input
             // verify token
             try {
                 const ticket = await client.verifyIdToken({
                     idToken: token,
                     audience: process.env.OAUTH2CLIENT
-                })
-                console.log(ticket.getPayload())
+                })                
                 const user = ticket.getPayload()
                 // check if user exists
                 let useCheckResp = await pool.query('SELECT * FROM users WHERE email=($1)', [user.email])
@@ -64,8 +61,7 @@ module.exports = {
         },
 
 
-        fetchPosts: async (parent, args, context, info) => {
-            console.log(args.input)
+        fetchPosts: async (parent, args, context, info) => {            
             let { offset } = args.input
             let limit = 5
             try {
@@ -78,8 +74,7 @@ module.exports = {
         fetchCommentsOnPostID: async (_, args, context, info) => {
             let { post_id } = args.input
             try {
-                let postResp = await pool.query('SELECT c.comment_id ,c."comment",u2.email ,c.is_deleted , u2."name"  FROM "comments" c INNER JOIN users u2 ON c.commentator_user_id = u2.user_id WHERE post_id =($1)', [post_id])
-                console.log(postResp.rows)
+                let postResp = await pool.query('SELECT c.comment_id ,c."comment",u2.email ,c.is_deleted , u2."name"  FROM "comments" c INNER JOIN users u2 ON c.commentator_user_id = u2.user_id WHERE post_id =($1)', [post_id])                
                 let commentsResp = []
                 postResp.rows.map(itm => commentsResp.push({
                     commentator_id: itm.user_id, commentator_name: itm.name,

@@ -3,10 +3,10 @@ import { UserOutlined } from '@ant-design/icons';
 import commonStyles from './styles/commonStyles';
 import Cookies from 'js-cookie'
 import { useState, useEffect } from 'react';
+import { debounce } from "lodash";
 
 import { client } from '../apolloGqlClient';
 import { create_post, fetch_mentions } from '../gqlQueries';
-import { debounce } from 'lodash';
 const { Option, getMentions } = Mentions;
 
 
@@ -16,7 +16,7 @@ const { TextArea } = Input;
 const CreatePost = ({ setReload, reload }) => {
     const [username, setusername] = useState('');
     const [picture, setpicture] = useState('');
-    
+
     const dummyDp = <Avatar style={commonStyles.bgGreen} icon={<UserOutlined />} />
 
     const [postDesc, setPostDesc] = useState('')
@@ -73,7 +73,7 @@ const CreatePost = ({ setReload, reload }) => {
                     rows="5" placeholder={"Whats on your mind, " + username?.split(' ')?.[0] + " ?"}
                     value={postDesc} autoFocus={true}
                     onChange={val => setPostDesc(val)}
-                    onSearch={(val) => getSuggestions(val)}
+                    onSearch={debounce((val) => getSuggestions(val), 1000)}
                 >
                     {suggestions?.map((itm, idx) => <Option key={idx} value={itm.name}>{itm.picture ? <Avatar src={itm.picture} /> : dummyDp}{" " + itm.name}</Option>)}
                 </Mentions>

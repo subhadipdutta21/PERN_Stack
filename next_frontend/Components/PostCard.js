@@ -1,6 +1,6 @@
 import { EditOutlined, HeartFilled, MessageOutlined, PlusOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Card, Input, Skeleton, List, message, Badge, Mentions, Button, Spin } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { client } from '../apolloGqlClient';
 import { fetch_comments_query, post_comment } from '../gqlQueries';
 import commonStyles from './styles/commonStyles';
@@ -56,7 +56,7 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
         finally { setLoading2(false) }
     }
 
-    const onChange = (value) => {        
+    const onChange = (value) => {
         setComment(value)
     }
 
@@ -111,9 +111,11 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
                     likes.length > 0 ?
                         <Badge size="small" count={likes.length}> <HeartFilled /> </Badge> :
                         <HeartFilled />,
-                    comments.length > 0 ?
-                        <Badge size="small" count={comments.length}> <MessageOutlined onClick={() => setShow(!show)} /> </Badge> :
-                        <MessageOutlined onClick={() => setShow(!show)} />
+                    <div onClick={() => setShow(!show)}>
+                        {comments.length > 0 ?
+                            <Badge size="small" count={comments.length}> <MessageOutlined /> </Badge> :
+                            <MessageOutlined />}
+                    </div>
                 ]}
             >
                 <Skeleton loading={false} avatar active>
