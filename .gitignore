@@ -1,5 +1,7 @@
 /next_frontend/node_modules
+/next_frontend/.env
 /next_frontend/.next
 /pern-todo-backend/node_modules
 /next_frontend/package-lock.json
 /pern-todo-backend/package-lock.json
+/pern-todo-backend/.env
