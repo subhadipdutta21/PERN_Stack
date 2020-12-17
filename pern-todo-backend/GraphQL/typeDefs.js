@@ -29,6 +29,7 @@ module.exports = gql`
     type Post {        
         id: String!
         body: String!
+        mentions: [String]
         user_id: String!  
         picture: String
         name: String!
@@ -101,6 +102,7 @@ module.exports = gql`
 
     input CreatePostInput{
         body: String!
+        mentions: [String]
         user_id: String!
         post_id: String
         isDeleted: Boolean

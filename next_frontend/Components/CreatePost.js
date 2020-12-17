@@ -23,6 +23,7 @@ const CreatePost = ({ setReload, reload }) => {
     const [show, setShow] = useState(false)
     const [loading, setLoading] = useState(false)
     const [suggestions, setSuggestions] = useState([])
+    const [mentionList, setMentionList] = useState([])
 
     useEffect(async () => {
         const username = await Cookies.get('user');
@@ -34,13 +35,16 @@ const CreatePost = ({ setReload, reload }) => {
     const createPost = async _ => {
         console.log('cretaing post--', Cookies.get('user_id'), postDesc)
         if (!postDesc) { message.error('Nothing to Post!'); return }
+        console.log(postDesc, mentionList)
+        // return
         setLoading(true)
         try {
             let resp = await client.mutate({
                 mutation: create_post, fetchPolicy: 'no-cache', variables: {
                     input: {
                         body: postDesc,
-                        user_id: Cookies.get('user_id')
+                        user_id: Cookies.get('user_id'),
+                        mentions: mentionList
                     }
                 }
             })
@@ -69,11 +73,13 @@ const CreatePost = ({ setReload, reload }) => {
             onCancel={() => { setShow(false); setPostDesc('') }}
         >
             <Spin spinning={loading}>
+                {console.log(postDesc, mentionList)}
                 <Mentions
                     rows="5" placeholder={"Whats on your mind, " + username?.split(' ')?.[0] + " ?"}
                     value={postDesc} autoFocus={true}
                     onChange={val => setPostDesc(val)}
                     onSearch={debounce((val) => getSuggestions(val), 1000)}
+                    onSelect={({ value }) => setMentionList([...mentionList, value])}
                 >
                     {suggestions?.map((itm, idx) => <Option key={idx} value={itm.name}>{itm.picture ? <Avatar src={itm.picture} /> : dummyDp}{" " + itm.name}</Option>)}
                 </Mentions>

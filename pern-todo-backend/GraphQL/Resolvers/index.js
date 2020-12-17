@@ -65,10 +65,15 @@ module.exports = {
         fetchPosts: async (parent, args, context, info) => {
             const authcheck = authMiddleware(context)
             let { offset } = args.input
-            let limit = 5
+            let limit = 100
             try {
                 console.log('called fetch posts')
-                let postResp = await pool.query('SELECT p2.id,p2.body,p2.user_id, u."name",u."picture" FROM posts p2 INNER JOIN users u ON u.user_id::uuid = p2.user_id limit $1 offset $2', [limit, offset])
+                let postResp = await pool.query(`
+                    SELECT p2.id,p2.body,p2.user_id,to_json(p2."mentions") as mentions,u."name",u."picture" FROM posts p2 
+                    INNER JOIN users u 
+                    ON u.user_id::uuid = p2.user_id 
+                    LIMIT $1 OFFSET $2`,
+                    [limit, offset])
                 return postResp.rows
             } catch (error) { console.log(error) }
         },
@@ -76,11 +81,18 @@ module.exports = {
         fetchCommentsOnPostID: async (_, args, context, info) => {
             let { post_id } = args.input
             try {
-                let postResp = await pool.query('SELECT c.comment_id ,c."comment",u2.email ,c.is_deleted , u2."name"  FROM "comments" c INNER JOIN users u2 ON c.commentator_user_id = u2.user_id WHERE post_id =($1)', [post_id])
+                let postResp = await pool.query(`
+                SELECT c.comment_id ,c."comment",u2.email ,c.is_deleted , u2."name"  FROM "comments" c 
+                INNER JOIN users u2 ON c.commentator_user_id = u2.user_id 
+                WHERE post_id =($1)`
+                    , [post_id])
                 let commentsResp = []
                 postResp.rows.map(itm => commentsResp.push({
-                    commentator_id: itm.user_id, commentator_name: itm.name,
-                    commentator_email: itm.email, comment: itm.comment, isDeleted: !!itm.is_deleted
+                    commentator_id: itm.user_id,
+                    commentator_name: itm.name,
+                    commentator_email: itm.email,
+                    comment: itm.comment,
+                    isDeleted: !!itm.is_deleted
                 }))
 
                 return commentsResp
@@ -138,12 +150,10 @@ module.exports = {
 
 
         createPost: async (_, args, context, info) => {
-            let { body, user_id, post_id, isDeleted } = args.input
-            console.log(args.input)
+            let { body, user_id, post_id, isDeleted, mentions } = args.input
             if (!!post_id) {
                 // find post
                 let findPostResp = await pool.query('SELECT * FROM posts p WHERE p.id=($1)', [post_id])
-                console.log(findPostResp.rowCount)
                 if (findPostResp.rowCount > 0)
                     if (!!isDeleted)
                         return pool.query('UPDATE posts SET is_deleted=($1) WHERE id=($2)', [true, post_id])
@@ -160,7 +170,7 @@ module.exports = {
             } else {
                 // create post
                 try {
-                    let upsertPostResp = await pool.query('INSERT INTO posts(body, user_id) VALUES($1,$2) RETURNING * ', [body, user_id])
+                    let upsertPostResp = await pool.query('INSERT INTO posts(body, user_id, mentions) VALUES($1,$2,$3) RETURNING * ', [body, user_id, mentions])
                     console.log(upsertPostResp)
                     return { message: 'Post creation successful', error: false }
                 } catch (err) { return { message: err, error: false } }
@@ -191,7 +201,10 @@ module.exports = {
             let { post_id, comment_id, comment, commentator_user_id, isDeleted } = args.input
 
             try {
-                let postCommentResp = await pool.query('INSERT INTO comments( post_id, comment, commentator_user_id, is_deleted) VALUES($1,$2,$3,$4) RETURNING *', [post_id, comment, commentator_user_id, !!isDeleted])
+                let postCommentResp = await pool.query(`
+                INSERT INTO comments( post_id, comment, commentator_user_id, is_deleted) 
+                VALUES($1,$2,$3,$4) RETURNING *`,
+                    [post_id, comment, commentator_user_id, !!isDeleted])
                 console.log('___', postCommentResp.rowCount)
                 if (postCommentResp.rowCount > 0)
                     return ({ message: 'post comment successful', error: false })

@@ -34,6 +34,7 @@ CREATE TABLE posts
 (
     id uuid DEFAULT uuid_generate_v4() NOT NULL PRIMARY KEY,
     body text NOT NULL,
+    mentions text [],
     user_id uuid,
     is_deleted Boolean DEFAULT FALSE
 )

@@ -14,17 +14,13 @@ const server = new ApolloServer({
         loaders: {
             likesLoader: likesDataLoader(),
             commentsLoader: commentsDataLoader()
-        },
-        req
+        }, req
     })
 })
 
-pool.connect(err => {
-    if (err) console.log(err)
-    else {
-        console.log('DB connected')
-        server.listen({ port: process.env.PORT })
-            .then(res => console.log('Graphql server running on', res.port))
-            .catch(err => console.log(err))
-    }
-})
+
+
+server
+    .listen({ port: process.env.PORT })
+    .then(res => console.log('Graphql server running on', res.port))
+    .catch(err => console.log(err))

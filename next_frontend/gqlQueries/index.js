@@ -8,6 +8,7 @@ query fetchPosts($input:FetchPostInput) {
    user_id
    picture
    name
+   mentions
    likes{
      liker_name
      liker_id

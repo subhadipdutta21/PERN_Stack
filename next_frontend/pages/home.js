@@ -40,9 +40,9 @@ const Home = _ => {
           likes={itm.likes} avatar={itm.picture}
           key={idx} content={itm.body}
           name={itm.name} postID={itm.id}
-          idx={idx} comments={itm.comments} />
+          idx={idx} comments={itm.comments} mentions={itm.mentions} />
       )}
-      <div style={{textAlign: 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <Button loading={loading} onClick={_ => setOffset(offset + 5)} style={{ margin: 20 }}>load more posts</Button>
       </div>
     </>
