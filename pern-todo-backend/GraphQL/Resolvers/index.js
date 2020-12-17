@@ -53,7 +53,9 @@ module.exports = {
                     // create user    
                     console.log('creating new user')
                     const { name, email, picture } = user
-                    let userInsertResp = await pool.query('INSERT INTO users(name,email,picture) VALUES ($1,$2,$3) RETURNING *', [name, email, picture])
+                    let userInsertResp = await pool.query(
+                        'INSERT INTO users(name,email,picture) VALUES ($1,$2,$3) RETURNING *',
+                        [name, email, picture])
                     const payload = { id: userInsertResp.rows[0].user_id }
                     let token = await jwt.sign(payload, config.get('jwtSecret'))
                     return { error: false, message: 'User registered successfully!', token, name, email, picture, user_id: payload.id }
@@ -138,7 +140,9 @@ module.exports = {
                     // create new user and hash the password                    
                     let hashedPassword = await bcrypt.hashSync(password, 10)
                     try {
-                        const resp = await pool.query('INSERT INTO users(name, email,contact, password) VALUES($1,$2,$3,$4) RETURNING * ', [name, email, contact, hashedPassword])
+                        const resp = await pool.query(
+                            'INSERT INTO users(name, email,contact, password) VALUES($1,$2,$3,$4) RETURNING * ',
+                            [name, email, contact, hashedPassword])
                         return { message: "Successfully registered!", error: null }
 
                     } catch (error) { return { message: null, error } }
@@ -170,7 +174,9 @@ module.exports = {
             } else {
                 // create post
                 try {
-                    let upsertPostResp = await pool.query('INSERT INTO posts(body, user_id, mentions) VALUES($1,$2,$3) RETURNING * ', [body, user_id, mentions])
+                    let upsertPostResp = await pool.query(
+                        'INSERT INTO posts(body, user_id, mentions) VALUES($1,$2,$3) RETURNING * ',
+                        [body, user_id, mentions])
                     console.log(upsertPostResp)
                     return { message: 'Post creation successful', error: false }
                 } catch (err) { return { message: err, error: false } }
