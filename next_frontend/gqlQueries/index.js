@@ -8,6 +8,7 @@ query fetchPosts($input:FetchPostInput) {
    user_id
    picture
    name
+   mentions
    likes{
      liker_name
      liker_id
@@ -74,4 +75,15 @@ postComment(input: $input){
   message
   error
 }}
+`
+
+export const NEW_NOTIFICATION = gql`
+subscription newNotification{
+    newNotification {
+    mentions
+    message
+    from
+    post_id
+    }
+  }
 `

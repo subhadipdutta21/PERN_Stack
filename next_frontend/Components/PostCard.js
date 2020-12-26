@@ -1,16 +1,15 @@
-import { EditOutlined, HeartFilled, MessageOutlined, PlusOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Card, Input, Skeleton, List, message, Badge, Mentions, Button, Spin } from 'antd';
-import React, { Fragment, useEffect, useState } from 'react';
+import { EditOutlined, HeartFilled, MessageOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Badge, Button, Card, List, Mentions, message, Skeleton, Spin } from 'antd';
+import Cookies from 'js-cookie';
+import React, { useState } from 'react';
 import { client } from '../apolloGqlClient';
 import { fetch_comments_query, post_comment } from '../gqlQueries';
 import commonStyles from './styles/commonStyles';
-import Cookies from 'js-cookie'
 
 const { Meta } = Card;
 const { Option } = Mentions;
 
-const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
-    console.log(comments)
+const PostCard = ({ content, name, postID, idx, avatar, comments, likes, mentions }) => {    
 
     const [comment, setComment] = useState('')
     const [allComments, setAllComments] = useState(comments)
@@ -30,7 +29,9 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
             })
 
             console.log(resp)
-            resp?.data?.fetchCommentsOnPostID ? setAllComments([...allComments, ...resp?.data?.fetchCommentsOnPostID]) : message.error('could not fetch comments')
+            resp?.data?.fetchCommentsOnPostID ?
+                setAllComments([...allComments, ...resp?.data?.fetchCommentsOnPostID]) :
+                message.error('could not fetch comments')
         }
         catch (error) { console.log(error) }
         finally { setLoading(false) }
@@ -62,6 +63,17 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
 
     const onSelect = (option) => {
         console.log('select', option);
+    }
+
+    const contentModifier = content => {
+        let tempContent = content
+        if (mentions) {
+            mentions.forEach(itm => {
+                tempContent = tempContent.replace("@" + itm, '')
+            })
+            let finalStr = tempContent.split(' ').filter(itm => itm).join(" ")
+            return finalStr
+        } else return content
     }
 
     const commentBox = () => (
@@ -100,6 +112,18 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
     )
 
 
+    const PostBody = ({ content }) => (
+        <>
+            {contentModifier(content)}
+            {mentions?.map((itm, idx) => (
+                <a key={idx}>
+                    {" @" + itm + " "}
+                </a>
+            ))}
+        </>
+    )
+
+
     return (
         <>
             {/* card component for post */}
@@ -119,7 +143,7 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes }) => {
                 ]}
             >
                 <Skeleton loading={false} avatar active>
-                    <Meta avatar={dp} title={name} description={content} />
+                    <Meta avatar={dp} title={name} description={<PostBody content={content} />} />
                 </Skeleton>
             </Card>
 

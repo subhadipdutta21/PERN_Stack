@@ -5,12 +5,15 @@ const DataLoader = require('dataloader');
 
 const likesByPostId = async (ids) => {
     console.log('called fetch likes', ids)
-    let data = await pool.query(
-        `SELECT u2."name" ,u2.email ,u2.user_id, l.post_id FROM likes l INNER JOIN users u2 ON l.liker_user_id::uuid = u2.user_id::uuid WHERE l.post_id::text=ANY($1)`,
+    let data = await pool.query(`
+        SELECT u2."name" ,u2.email ,u2.user_id, l.post_id 
+        FROM likes l 
+        INNER JOIN users u2 ON l.liker_user_id::uuid = u2.user_id::uuid 
+        WHERE l.post_id::text=ANY($1)`,
         [ids]
-    )    
+    )
     let tempdata = data.rows
-    const groupedById = Ramda.groupBy(tempdataitm => tempdataitm.post_id, tempdata)    
+    const groupedById = Ramda.groupBy(tempdataitm => tempdataitm.post_id, tempdata)
     return Ramda.map(post_id => {
         let tempdata1 = groupedById[post_id]
         let changedKeyNames = []
@@ -31,16 +34,18 @@ const likesByPostId = async (ids) => {
 
 const commentsByPostId = async (ids) => {
     console.log('called fetch comments', ids)
-    let data = await pool.query(
-        `SELECT u2.user_id,u2.picture, u2.name,u2.email,c2."comment" ,c2.is_deleted ,c2.comment_id, c2.post_id FROM users u2 
-        INNER JOIN "comments" c2 ON c2.commentator_user_id::uuid = u2.user_id::uuid WHERE c2.post_id::text=ANY($1)`,
+    let data = await pool.query(`
+        SELECT u2.user_id,u2.picture, u2.name,u2.email,c2."comment" ,c2.is_deleted ,c2.comment_id, c2.post_id 
+        FROM users u2 
+        INNER JOIN "comments" c2 ON c2.commentator_user_id::uuid = u2.user_id::uuid 
+        WHERE c2.post_id::text=ANY($1)`,
         [ids]
     )
 
-    let tempdata = data.rows    
+    let tempdata = data.rows
     const groupedById = Ramda.groupBy(tempdataitm => tempdataitm.post_id, tempdata)
 
-    return Ramda.map(post_id => {        
+    return Ramda.map(post_id => {
         let tempdata1 = groupedById[post_id]
         let changedKeyNames = []
         if (!!tempdata1) {
