@@ -70,7 +70,7 @@ module.exports = {
             // const authcheck = await authMiddleware(context)
             // console.log(authcheck)
             let { offset } = args.input
-            let limit = 100
+            let limit = 5
             try {
                 console.log('called fetch posts')
                 let postResp = await pool.query(`
