@@ -1,12 +1,13 @@
-import { Button, message } from 'antd';
+import { Button, message, notification } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { client } from '../apolloGqlClient';
 import CreatePost from '../Components/CreatePost';
 import PostCard from '../Components/PostCard';
-import { fetch_posts_query } from '../gqlQueries';
+import { fetch_posts_query, NEW_NOTIFICATION } from '../gqlQueries';
 import Cookies from 'js-cookie';
 import Router from "next/router";
 import { checkIfLoggedIn } from '../helper';
+import { useSubscription } from '@apollo/client'
 
 
 const Home = _ => {
@@ -15,6 +16,32 @@ const Home = _ => {
   const [offset, setOffset] = useState(0)
   const [loading, setLoading] = useState(false)
   const [reload, setReload] = useState(false)
+
+  const { data: messageData, error: messageError } = useSubscription(NEW_NOTIFICATION)
+
+  useEffect(() => {
+    if (messageError) console.log(messageError)
+
+    if (messageData) {
+      console.log(messageData)
+      openNotification(messageData.newNotification)
+    }
+  }, [messageError, messageData])
+
+
+
+
+
+  const openNotification = ({ from, message }) => {
+    notification.open({
+      message: 'Notification 🔔',
+      description:
+        from + " has tagged you in a post!",
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
 
   const getPosts = async () => {
     setLoading(true)
@@ -29,7 +56,7 @@ const Home = _ => {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { getPosts() }, [offset])
+  useEffect(() => { getPosts(); }, [offset])
 
   return (
     <>
@@ -65,8 +92,6 @@ const Home = _ => {
 //   resp?.data?.fetchPosts ? posts = resp?.data?.fetchPosts : null
 
 // } catch (error) { console.log(error); message.error('Could not fetch posts') }
-
-
 
 //   return {
 //     props: { posts },

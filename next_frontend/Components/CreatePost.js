@@ -2,7 +2,7 @@ import { Button, message, Input, Avatar, Modal, Spin, Mentions } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import commonStyles from './styles/commonStyles';
 import Cookies from 'js-cookie'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { debounce } from "lodash";
 
 import { client } from '../apolloGqlClient';
@@ -60,10 +60,13 @@ const CreatePost = ({ setReload, reload }) => {
 
 
     const getSuggestions = async val => {
+        console.log(val, '----called')
         let resp = await client.query({ query: fetch_mentions, fetchPolicy: 'no-cache', variables: { input: { searchTerm: val } } })
         console.log(resp)
         resp?.data?.mentions?.error ? message.error(resp?.data?.mentions?.message) : setSuggestions(resp?.data?.mentions?.suggestions)
     }
+
+    const debounceOnSearch = useCallback(debounce(getSuggestions, 2500), [])
 
     const createPostModal = () => (
         <Modal
@@ -73,12 +76,11 @@ const CreatePost = ({ setReload, reload }) => {
             onCancel={() => { setShow(false); setPostDesc('') }}
         >
             <Spin spinning={loading}>
-                {console.log(postDesc, mentionList)}
                 <Mentions
                     rows="5" placeholder={"Whats on your mind, " + username?.split(' ')?.[0] + " ?"}
                     value={postDesc} autoFocus={true}
                     onChange={val => setPostDesc(val)}
-                    onSearch={debounce((val) => getSuggestions(val), 1000)}
+                    onSearch={val => debounceOnSearch(val)}
                     onSelect={({ value }) => setMentionList([...mentionList, value])}
                 >
                     {suggestions?.map((itm, idx) => <Option key={idx} value={itm.name}>{itm.picture ? <Avatar src={itm.picture} /> : dummyDp}{" " + itm.name}</Option>)}

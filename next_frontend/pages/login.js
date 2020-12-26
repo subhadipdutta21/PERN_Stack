@@ -42,7 +42,7 @@ const Login = () => {
                     Router.push('/home')
                 )
         }
-        catch (error) { message.error(error); setDisabled(false) }        
+        catch (error) { message.error(error); setDisabled(false); console.log(error) }        
 
     }
 

@@ -76,3 +76,14 @@ postComment(input: $input){
   error
 }}
 `
+
+export const NEW_NOTIFICATION = gql`
+subscription newNotification{
+    newNotification {
+    mentions
+    message
+    from
+    post_id
+    }
+  }
+`

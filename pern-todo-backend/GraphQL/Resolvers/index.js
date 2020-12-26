@@ -2,16 +2,18 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const pool = require('../../db')
 const config = require('config')
+const { PubSub, withFilter } = require('apollo-server')
 const { OAuth2Client } = require('google-auth-library');
-
 const { likesByIds, likesByPostId } = require('./queryFunctions');
 const { authMiddleware } = require('../../Helper');
+
 const client = new OAuth2Client(process.env.OAUTH2CLIENT)
+const pubsub = new PubSub()
+
 require("dotenv").config();
 
 
 module.exports = {
-
     Query: {
         authenticateUser: async (_, args, context, info) => {
             let { email, password } = args.input
@@ -65,7 +67,8 @@ module.exports = {
 
 
         fetchPosts: async (parent, args, context, info) => {
-            const authcheck = authMiddleware(context)
+            // const authcheck = await authMiddleware(context)
+            // console.log(authcheck)
             let { offset } = args.input
             let limit = 100
             try {
@@ -177,7 +180,19 @@ module.exports = {
                     let upsertPostResp = await pool.query(
                         'INSERT INTO posts(body, user_id, mentions) VALUES($1,$2,$3) RETURNING * ',
                         [body, user_id, mentions])
-                    console.log(upsertPostResp)
+                    let resp = await pool.query('SELECT u.name FROM users u WHERE user_id=$1', [user_id])
+                    let userdata = resp.rows[0]                    
+                    pubsub.publish(
+                        'NEW_NOTIFICATION',
+                        {
+                            newNotification: {
+                                mentions,
+                                message: "You are tagged",
+                                from: userdata.name,
+                                post_id: upsertPostResp.rows.id
+                            },
+                        })
+
                     return { message: 'Post creation successful', error: false }
                 } catch (err) { return { message: err, error: false } }
             }
@@ -217,8 +232,23 @@ module.exports = {
 
             } catch (err) { return { message: err, error: true } }
 
-        }
+        },
 
+    },
+
+    Subscription: {
+        newNotification: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(['NEW_NOTIFICATION']),
+                (parent, __, context) => {
+                    console.log('parent user details---', parent, context)
+                    if (parent.newNotification.mentions.includes(context.user.user.name))
+                        return true
+                    else
+                        return false
+                }
+            )
+        }
     }
 
 }

@@ -78,6 +78,17 @@ module.exports = gql`
         picture: String
     }
 
+    type Notification {
+        # id: String
+        # content: String
+        post_id: String
+        from: String
+        # to: String
+        # createdAt: String
+        mentions: [String]
+        message: String
+    }
+
 
 # inputs
 
@@ -133,6 +144,11 @@ module.exports = gql`
         searchTerm: String!
     }
 
+    input NotificationInput {
+        to: String
+        content: String
+    }
+
 
 # queries
 
@@ -142,6 +158,7 @@ module.exports = gql`
         fetchCommentsOnPostID(input: FetchCommentInput!): [Comment]
         oAuth(input: authToken!): AuthResponse!
         mentions(input: mentionInput!): Suggestions
+        getNotifications: Notification!
     }
 
 
@@ -152,5 +169,10 @@ module.exports = gql`
         createPost(input: CreatePostInput!) : CreatePostResponse!
         createLikes(input: LikeInput!): LikeResponse!
         postComment(input: CommentInput!): CommentResponse!
+        sendNotifications(input: NotificationInput!): Notification!
+    }
+
+    type Subscription {
+        newNotification: Notification!
     }
 `
