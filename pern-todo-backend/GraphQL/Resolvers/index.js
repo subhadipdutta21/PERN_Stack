@@ -181,7 +181,7 @@ module.exports = {
                         'INSERT INTO posts(body, user_id, mentions) VALUES($1,$2,$3) RETURNING * ',
                         [body, user_id, mentions])
                     let resp = await pool.query('SELECT u.name FROM users u WHERE user_id=$1', [user_id])
-                    let userdata = resp.rows[0]                    
+                    let userdata = resp.rows[0]
                     pubsub.publish(
                         'NEW_NOTIFICATION',
                         {
@@ -189,7 +189,7 @@ module.exports = {
                                 mentions,
                                 message: "You are tagged",
                                 from: userdata.name,
-                                post_id: upsertPostResp.rows.id
+                                post_id: upsertPostResp.rows[0].id
                             },
                         })
 
@@ -241,7 +241,7 @@ module.exports = {
             subscribe: withFilter(
                 () => pubsub.asyncIterator(['NEW_NOTIFICATION']),
                 (parent, __, context) => {
-                    console.log('parent user details---', parent, context)
+                    console.log('parent user details and context---', parent, context)
                     if (parent.newNotification.mentions.includes(context.user.user.name))
                         return true
                     else

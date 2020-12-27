@@ -12,8 +12,7 @@ module.exports = {
         let token = null
         if (ctx.req) {
             console.log('middleware called--', ctx.req.headers)            
-            token = ctx.req.headers.authorization
-            console.log(token)           
+            token = ctx.req.headers.authorization             
         } else {
             console.log('else', ctx.connection.context.Authorization)
             token = ctx.connection.context.Authorization
@@ -27,6 +26,7 @@ module.exports = {
                 let resp = await pool.query('SELECT * FROM users WHERE user_id=$1', [verified.id])
                 let userdata = resp.rows[0]
                 ctx.user = userdata
+                console.log('ctx0-----',ctx.user)
                 return ctx
             } catch (err) {
                 console.log(err);
