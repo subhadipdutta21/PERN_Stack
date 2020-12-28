@@ -35,6 +35,7 @@ module.exports = gql`
         name: String!
         likes: [Like!]!      
         comments:[Comment]
+        created_at: String
     }
 
     type Like {

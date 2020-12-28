@@ -17,7 +17,7 @@ CREATE TABLE restaurants
 
 -- PERN --
 
--- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users
 (
@@ -35,6 +35,7 @@ CREATE TABLE posts
     id uuid DEFAULT uuid_generate_v4() NOT NULL PRIMARY KEY,
     body text NOT NULL,
     mentions text [],
+    crerated_at TIMESTAMPZ DEFAULT now(),
     user_id uuid,
     is_deleted Boolean DEFAULT FALSE
 )

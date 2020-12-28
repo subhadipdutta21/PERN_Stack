@@ -74,7 +74,7 @@ module.exports = {
             try {
                 console.log('called fetch posts')
                 let postResp = await pool.query(`
-                    SELECT p2.id,p2.body,p2.user_id,to_json(p2."mentions") as mentions,u."name",u."picture" FROM posts p2 
+                    SELECT p2.id,p2.body,p2.user_id,to_json(p2."mentions") as mentions, p2.created_at ,u."name",u."picture" FROM posts p2 
                     INNER JOIN users u 
                     ON u.user_id::uuid = p2.user_id 
                     LIMIT $1 OFFSET $2`,
