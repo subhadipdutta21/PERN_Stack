@@ -104,5 +104,4 @@ const Head = () => {
         </Header>
     );
 }
-
 export default Head;
