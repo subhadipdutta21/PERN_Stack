@@ -33,8 +33,7 @@ module.exports = {
             } catch (error) { return { error: true, message: error } }
         },
 
-        oAuth: async (_, args, context, info) => {
-            const { token } = args.input
+        oAuth: async (_, { token }, context, info) => {
             // verify token
             try {
                 const ticket = await client.verifyIdToken({
@@ -131,7 +130,7 @@ module.exports = {
                 ORDER BY subq.created_at DESC
                 LIMIT $2 OFFSET $3`, [name, limit, offset])
                 console.log('data---', resp.rows)
-                
+
                 return resp.rows
             }
             catch (error) { return { error: true, message: error } }
