@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GoogleLogin } from 'react-google-login';
 import { client } from '../apolloGqlClient';
-import { oAuthentication } from '../gqlQueries';
+import { OAUTHENTICATION } from '../gqlQueries';
 import styles from '../Components/styles/commonStyles.module.css'
 import Cookies from 'js-cookie';
 import { Form, Input, Button, Checkbox, Card, message, Row } from 'antd';
@@ -28,7 +28,7 @@ const Login = () => {
         console.log(resp)
         let token = resp.getAuthResponse().id_token
         try {
-            let res = await client.query({ query: oAuthentication, variables: { input: { token } }, fetchPolicy: 'no-cache' })
+            let res = await client.query({ query: OAUTHENTICATION, variables: { input: { token } }, fetchPolicy: 'no-cache' })
             console.log(res)
             res?.data?.oAuth?.error ?
                 message.error(res.data.oAuth.message) :

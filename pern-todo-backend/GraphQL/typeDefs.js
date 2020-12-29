@@ -88,6 +88,16 @@ module.exports = gql`
         # createdAt: String
         mentions: [String]
         message: String
+        error: Boolean
+    }
+
+    type NotificationList {
+        tagger_name: String
+        post_id: String
+        tagger_id: String
+        created_at: String
+        tagged: String
+        tagger_dp: String
     }
 
 
@@ -150,6 +160,12 @@ module.exports = gql`
         content: String
     }
 
+    input user {        
+        name: String
+        limit: Int 
+        offset: Int
+    }
+
 
 # queries
 
@@ -160,6 +176,7 @@ module.exports = gql`
         oAuth(input: authToken!): AuthResponse!
         mentions(input: mentionInput!): Suggestions
         getNotifications: Notification!
+        fetchNotificationList(input: user!): [NotificationList]
     }
 
 

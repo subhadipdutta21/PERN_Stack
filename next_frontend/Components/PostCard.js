@@ -3,7 +3,7 @@ import { Avatar, Badge, Button, Card, List, Mentions, message, Skeleton, Spin } 
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
 import { client } from '../apolloGqlClient';
-import { fetch_comments_query, post_comment } from '../gqlQueries';
+import { FETCH_COMMENTS_QUERY, POST_COMMENT } from '../gqlQueries';
 import commonStyles from './styles/commonStyles';
 
 const { Meta } = Card;
@@ -25,7 +25,7 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes, mention
         setLoading(true)
         try {
             let resp = await client.query({
-                query: fetch_comments_query, fetchPolicy: 'no-cache', variables: { input: { post_id: postID } }
+                query: FETCH_COMMENTS_QUERY, fetchPolicy: 'no-cache', variables: { input: { post_id: postID } }
             })
 
             console.log(resp)
@@ -41,7 +41,7 @@ const PostCard = ({ content, name, postID, idx, avatar, comments, likes, mention
         setLoading2(true)
         try {
             let resp = await client.mutate({
-                mutation: post_comment, fetchPolicy: 'no-cache', variables: {
+                mutation: POST_COMMENT, fetchPolicy: 'no-cache', variables: {
                     input: {
                         post_id: postID,
                         comment,

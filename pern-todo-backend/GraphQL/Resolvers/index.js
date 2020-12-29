@@ -112,9 +112,30 @@ module.exports = {
                 return { suggestions: suggestions.rows, error: false, message: 'suggestions found' }
             }
             catch (error) { return { error: true, message: error } }
+        },
+
+        fetchNotificationList: async (parent, args, context, info) => {
+            console.log('inut---', args.input)
+            let { name, limit, offset } = args.input
+            try {
+                let resp = await pool.query(`
+                SELECT * FROM 
+                (                    
+                    SELECT u2."name" AS tagger_name,u2.picture as tagger_dp, p.id AS post_id, p.user_id AS tagger_id,p.created_at ,UNNEST(p.mentions) AS tagged 
+                    FROM posts p 
+                    INNER JOIN users u2 
+                    ON u2.user_id = p.user_id
+                ) 
+                AS subq 
+                WHERE subq.tagged = ($1) 
+                ORDER BY subq.created_at DESC
+                LIMIT $2 OFFSET $3`, [name, limit, offset])
+                console.log('data---', resp.rows)
+                
+                return resp.rows
+            }
+            catch (error) { return { error: true, message: error } }
         }
-
-
     },
 
     Post: {
@@ -126,7 +147,6 @@ module.exports = {
         comments: async (parent, args, context) => {
             const { loaders } = context
             return loaders.commentsLoader.load(parent.id)
-
         }
     },
 

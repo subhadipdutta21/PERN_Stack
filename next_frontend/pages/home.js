@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { client } from '../apolloGqlClient';
 import CreatePost from '../Components/CreatePost';
 import PostCard from '../Components/PostCard';
-import { fetch_posts_query, NEW_NOTIFICATION } from '../gqlQueries';
+import { FETCH_POSTS_QUERY, NEW_NOTIFICATION } from '../gqlQueries';
 import Cookies from 'js-cookie';
 import Router from "next/router";
 import { checkIfLoggedIn } from '../helper';
@@ -47,7 +47,7 @@ const Home = _ => {
     setLoading(true)
     try {
       const resp = await client.query({
-        query: fetch_posts_query, fetchPolicy: 'no-cache', variables: { input: { offset } }
+        query: FETCH_POSTS_QUERY, fetchPolicy: 'no-cache', variables: { input: { offset } }
       })
 
       resp?.data?.fetchPosts ? setAllPosts([...allPosts, ...resp.data.fetchPosts]) : message.error('No Posts!')
@@ -84,7 +84,7 @@ const Home = _ => {
 // let posts = []
 // try {
 //   const resp = await client.query({
-//     query: fetch_posts_query, fetchPolicy: 'no-cache', variables: {
+//     query: FETCH_POSTS_QUERY, fetchPolicy: 'no-cache', variables: {
 //       input: { offset: 0 }
 //     }
 //   })

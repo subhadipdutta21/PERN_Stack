@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const fetch_posts_query = gql`
+export const FETCH_POSTS_QUERY = gql`
 query fetchPosts($input:FetchPostInput) {
  fetchPosts(input: $input){  
     id
@@ -23,7 +23,7 @@ query fetchPosts($input:FetchPostInput) {
    }}`
 
 
-export const fetch_comments_query = gql`
+export const FETCH_COMMENTS_QUERY = gql`
 query fetchCommentsOnPostID($input: FetchCommentInput!) {
   fetchCommentsOnPostID(input: $input) {    
     commentator_id
@@ -35,7 +35,7 @@ query fetchCommentsOnPostID($input: FetchCommentInput!) {
 }`
 
 
-export const oAuthentication = gql`
+export const OAUTHENTICATION = gql`
 query oAuth($input: authToken!){
   oAuth(input: $input) {
     message
@@ -49,7 +49,7 @@ query oAuth($input: authToken!){
 }`
 
 
-export const create_post = gql`
+export const CREATE_POST = gql`
 mutation createPost($input: CreatePostInput!){
   createPost(input: $input) {
     message
@@ -57,7 +57,7 @@ mutation createPost($input: CreatePostInput!){
   }
 }`
 
-export const fetch_mentions = gql`
+export const FETCH_MENTIONS = gql`
 query mentions($input: mentionInput!){
   mentions(input: $input){
     suggestions {
@@ -69,7 +69,7 @@ query mentions($input: mentionInput!){
   }  
 }`
 
-export const post_comment = gql`
+export const POST_COMMENT = gql`
 mutation postComment($input: CommentInput!) {
 postComment(input: $input){
   message
@@ -86,4 +86,16 @@ subscription newNotification{
     post_id
     }
   }
+`
+
+export const FETCH_NOTIFICATION_LIST = gql`
+query fetchNotificationList($input: user!){
+  fetchNotificationList(input: $input) {
+    tagger_name
+    post_id
+    tagger_id
+    created_at
+    tagger_dp
+  }
+}
 `

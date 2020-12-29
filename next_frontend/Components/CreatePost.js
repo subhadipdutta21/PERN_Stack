@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { debounce } from "lodash";
 
 import { client } from '../apolloGqlClient';
-import { create_post, fetch_mentions } from '../gqlQueries';
+import { CREATE_POST, FETCH_MENTIONS } from '../gqlQueries';
 const { Option, getMentions } = Mentions;
 
 
@@ -40,7 +40,7 @@ const CreatePost = ({ setReload, reload }) => {
         setLoading(true)
         try {
             let resp = await client.mutate({
-                mutation: create_post, fetchPolicy: 'no-cache', variables: {
+                mutation: CREATE_POST, fetchPolicy: 'no-cache', variables: {
                     input: {
                         body: postDesc,
                         user_id: Cookies.get('user_id'),
@@ -61,7 +61,7 @@ const CreatePost = ({ setReload, reload }) => {
 
     const getSuggestions = async val => {
         console.log(val, '----called')
-        let resp = await client.query({ query: fetch_mentions, fetchPolicy: 'no-cache', variables: { input: { searchTerm: val } } })
+        let resp = await client.query({ query: FETCH_MENTIONS, fetchPolicy: 'no-cache', variables: { input: { searchTerm: val } } })
         console.log(resp)
         resp?.data?.mentions?.error ? message.error(resp?.data?.mentions?.message) : setSuggestions(resp?.data?.mentions?.suggestions)
     }
