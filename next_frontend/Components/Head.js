@@ -97,7 +97,7 @@ const Head = () => {
                     key={'right'}
                     width={'400px'}
                 >
-                    {[1, 2, 3, 4, 5].map(_ => <Skeleton active />)}
+                     {[1, 2, 3, 4, 5].map((itm, idx) => <Skeleton key={idx} active />)}
 
                 </Drawer>
             </div>
