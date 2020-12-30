@@ -4,7 +4,7 @@ const todoController = require('../Controllers/todo-controller')
 const verifyTokenMiddleware = require('../Controllers/Verify-token-middleware')
 
 // get all todos
-router.get('', verifyTokenMiddleware, todoController.getAll)
+router.get('', todoController.getAll)
 
 // add todos
 router.post('', verifyTokenMiddleware, todoController.addOne)
