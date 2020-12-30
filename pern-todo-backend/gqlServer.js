@@ -5,17 +5,22 @@ const { likesDataLoader, commentsDataLoader } = require('./GraphQL/Resolvers/que
 const { authMiddleware } = require('./Helper')
 require("dotenv").config()
 
+const redis = require("redis");
+const client = redis.createClient();
+
+client.on('error', (err) => { console.log('redis error', err) })
 
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: async (ctx) => {        
+    context: async (ctx) => {
         return {
             loaders: {
                 likesLoader: likesDataLoader(),
                 commentsLoader: commentsDataLoader()
             },
-            user: await authMiddleware(ctx)            
+            user: await authMiddleware(ctx),
+            client
         }
     }
 })

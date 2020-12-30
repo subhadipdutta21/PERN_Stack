@@ -114,8 +114,9 @@ module.exports = {
             catch (error) { return { error: true, message: error } }
         },
 
-        fetchNotificationList: async (parent, args, context, info) => {
+        fetchNotificationList: async (parent, args, { client }, info) => {
             console.log('inut---', args.input)
+            await client.del('notificCacheKey')
             let { name, limit, offset } = args.input
             try {
                 let resp = await pool.query(`
@@ -131,7 +132,14 @@ module.exports = {
                 ORDER BY subq.created_at DESC
                 LIMIT $2 OFFSET $3`, [name, limit, offset])
                 console.log('data---', resp.rows)
-                
+
+                const notificListingStr = resp.rows.map(data => JSON.stringify(data))
+                await client.lpush('notificCacheKey', ...notificListingStr)
+                console.log(
+                    'redis data--',
+                    await client.lrange('notificCacheKey', 0, -1)
+                )
+
                 return resp.rows
             }
             catch (error) { return { error: true, message: error } }
