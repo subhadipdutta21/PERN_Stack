@@ -7,11 +7,11 @@ const pg = require('pg')
 require("dotenv").config();
 
 let localDB = {
-    user: 'postgres',
-    password: 'subh1994',
-    host: 'localhost',
+    user: 'dockerpg',
+    password: 'dockerpg',
+    host: 'pg',
     port: 5432,
-    database: 'pern'
+    database: 'dockerpg'
 }
 
 function DbEventEmitter() {
