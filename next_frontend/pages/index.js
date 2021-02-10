@@ -1,7 +1,7 @@
-import Login from "./login"
+import Login from "./login";
 
-const IndexPage = () =>  {
-  return <Login />
+const IndexPage = () => {
+  return <Login />;
 };
 
 export default IndexPage;
