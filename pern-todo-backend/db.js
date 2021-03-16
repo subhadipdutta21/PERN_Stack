@@ -26,15 +26,15 @@ dbEventEmitter.on("new_mentions_on_post", (msg) => {
   console.log("new record--", msg);
 });
 
-const pool = new Pool(localDB);
+// const pool = new Pool(localDB);
 
 // heroku
-// const pool = new Client({
-//     connectionString: process.env.POSTGRES_URI,
-//     ssl: {
-//         rejectUnauthorized: false
-//     }
-// });
+const pool = new Client({
+    connectionString: process.env.POSTGRES_URI,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 // const pool = new Client({
 //     connectionString: 'postgres://dockerpg:dockerpg@pg:5432/dockerpg',

@@ -24,6 +24,7 @@ const CreatePost = ({ setReload, reload }) => {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [mentionList, setMentionList] = useState([]);
+  const [image, setImage] = useState(null);
 
   useEffect(async () => {
     const username = await Cookies.get("user");
@@ -82,6 +83,17 @@ const CreatePost = ({ setReload, reload }) => {
       : setSuggestions(resp?.data?.mentions?.suggestions);
   };
 
+  const handleChange = (e) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    const url = await fileUpload(image);
+    console.log({ url });
+  };
+
   const debounceOnSearch = useCallback(debounce(getSuggestions, 2500), []);
 
   const createPostModal = () => (
@@ -97,6 +109,8 @@ const CreatePost = ({ setReload, reload }) => {
       }}
     >
       <Spin spinning={loading}>
+        <input type="file" onChange={handleChange} />
+        <button onClick={handleUpload}>Upload</button>
         <Mentions
           rows="5"
           placeholder={
