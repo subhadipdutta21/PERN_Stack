@@ -52,12 +52,3 @@ export const client = new ApolloClient({
   link: splitLink,
   cache: new InMemoryCache(),
 });
-
-// const client2 = new ApolloClient({
-//     link: splitLink,
-//     cache: new InMemoryCache()
-// });
-
-// export const ApolloProvider = props => {
-//     return <Provider client={client2} {...props} />
-// }

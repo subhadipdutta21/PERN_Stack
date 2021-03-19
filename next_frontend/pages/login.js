@@ -17,7 +17,7 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 const tailLayout2 = {
-  wrapperCol: { offset: 8, span: 16 },
+  wrapperCol: { offset: 5, span: 16 },
 };
 
 const Login = () => {
@@ -94,7 +94,7 @@ const Login = () => {
                 Login
               </Button>
             </Form.Item>
-
+            <hr />
             <Form.Item {...tailLayout2} className={styles.oauthBtn}>
               <GoogleLogin
                 clientId={process.env.OAUTH_CLIENT_ID}
@@ -105,6 +105,8 @@ const Login = () => {
                 theme="dark"
                 disabled={disabled}
               />
+              <br />
+              <br />
             </Form.Item>
           </Form>
         </Card>
